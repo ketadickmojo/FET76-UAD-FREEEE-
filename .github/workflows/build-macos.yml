@@ -1,4 +1,4 @@
-name: Build VST3 on macOS
+name: Build VST3 + AU on macOS
 
 on:
   push:
@@ -24,18 +24,22 @@ jobs:
             --config Release \
             --parallel
 
-      - name: Verify plugin architecture
+      - name: Verify VST3 architecture
         run: |
           file build/FET76_artefacts/Release/VST3/FET76.vst3/Contents/MacOS/FET76
 
-      - name: Package VST3
+      - name: Verify AU architecture
+        run: |
+          file build/FET76_artefacts/Release/AU/FET76.component/Contents/MacOS/FET76
+
+      - name: Package plugins
         run: |
           mkdir -p out
           cp -R build/FET76_artefacts/Release/VST3/FET76.vst3 out/
+          cp -R build/FET76_artefacts/Release/AU/FET76.component out/
 
-      - name: Upload built plugin
+      - name: Upload plugins
         uses: actions/upload-artifact@v4
         with:
-          name: FET76-vst3-macos-arm64
-          path: out/FET76.vst3 
-
+          name: FET76-macOS-Apple-Silicon
+          path: out/
