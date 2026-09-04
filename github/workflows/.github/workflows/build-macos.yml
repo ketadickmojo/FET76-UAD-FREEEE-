@@ -1,0 +1,30 @@
+name: Build VST3 on macOS
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure (CMake скачает JUCE сам)
+        run: cmake -B build -G Xcode
+
+      - name: Build Release
+        run: cmake --build build --config Release
+
+      - name: Find and package .vst3
+        run: |
+          mkdir -p out
+          cp -R build/FET76_artefacts/Release/VST3/FET76.vst3 out/
+
+      - name: Upload built plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: FET76-vst3-macos
+          path: out/FET76.vst3
