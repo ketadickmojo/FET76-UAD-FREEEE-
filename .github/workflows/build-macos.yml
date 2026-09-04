@@ -12,13 +12,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure (CMake скачает JUCE сам)
-        run: cmake -B build -G Xcode
+      - name: Configure CMake for Apple Silicon
+        run: |
+          cmake -B build -G Xcode \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCMAKE_BUILD_TYPE=Release
 
       - name: Build Release
-        run: cmake --build build --config Release
+        run: |
+          cmake --build build \
+            --config Release \
+            --parallel
 
-      - name: Find and package .vst3
+      - name: Verify plugin architecture
+        run: |
+          file build/FET76_artefacts/Release/VST3/FET76.vst3/Contents/MacOS/FET76
+
+      - name: Package VST3
         run: |
           mkdir -p out
           cp -R build/FET76_artefacts/Release/VST3/FET76.vst3 out/
@@ -26,5 +36,6 @@ jobs:
       - name: Upload built plugin
         uses: actions/upload-artifact@v4
         with:
-          name: FET76-vst3-macos
-          path: out/FET76.vst3
+          name: FET76-vst3-macos-arm64
+          path: out/FET76.vst3 
+
